@@ -4,31 +4,45 @@ class EmailService {
   constructor() {
     this.transporter = null
     this.initialized = false
-  }
-  async initialize() {
+  }  async initialize() {
     if (this.initialized) return
 
     try {
-      // Configurar el transportador SMTP para correo empresarial
-      this.transporter = nodemailer.createTransporter({
-        host: process.env.EMAIL_HOST || 'mail.pedidosvenados.cl', // Tu servidor SMTP
-        port: parseInt(process.env.EMAIL_PORT) || 587, // Puerto SMTP (587 o 465)
-        secure: process.env.EMAIL_SECURE === 'true' || false, // true para puerto 465, false para otros
-        auth: {
-          user: process.env.EMAIL_USER, // venados@pedidosvenados.cl
-          pass: process.env.EMAIL_PASS  // contraseña del correo empresarial
-        },
-        tls: {
-          rejectUnauthorized: false // Para servidores con certificados auto-firmados
-        }
+      console.log('🔧 Configurando SMTP con:', {
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        secure: process.env.EMAIL_SECURE,
+        user: process.env.EMAIL_USER ? 'configurado' : 'NO CONFIGURADO'
       })
 
-      // Verificar la conexión
+      // Configurar el transportador SMTP para Hostinger
+      this.transporter = nodemailer.createTransporter({
+        host: process.env.EMAIL_HOST,
+        port: parseInt(process.env.EMAIL_PORT),
+        secure: process.env.EMAIL_SECURE === 'true',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        },
+        tls: {
+          rejectUnauthorized: false
+        },
+        debug: true, // Activar debug para ver qué pasa
+        logger: true // Activar logging
+      })
+
+      // Verificar la conexión SMTP
+      console.log('🔍 Verificando conexión SMTP...')
       await this.transporter.verify()
-      console.log('✅ Nodemailer configurado correctamente con SMTP empresarial')
+      console.log('✅ Nodemailer configurado correctamente con Hostinger SMTP')
       this.initialized = true
     } catch (error) {
       console.error('❌ Error configurando Nodemailer:', error)
+      console.error('📋 Detalles del error:', {
+        code: error.code,
+        command: error.command,
+        response: error.response
+      })
       throw error
     }
   }

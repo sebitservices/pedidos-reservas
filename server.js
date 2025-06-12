@@ -281,9 +281,16 @@ app.post('/api/email/send-confirmation', async (req, res) => {
   try {
     const reservationData = req.body;
     
-    console.log('📧 Enviando email de confirmación para reserva:', reservationData.numeroReserva);
+    console.log('📧 Recibida solicitud de email para reserva:', reservationData.numeroReserva);
+    console.log('📋 Variables de entorno disponibles:', {
+      EMAIL_HOST: process.env.EMAIL_HOST ? 'SET' : 'NOT SET',
+      EMAIL_USER: process.env.EMAIL_USER ? 'SET' : 'NOT SET',
+      EMAIL_PORT: process.env.EMAIL_PORT ? 'SET' : 'NOT SET'
+    });
     
     const result = await emailService.sendReservationConfirmation(reservationData);
+    
+    console.log('✅ Email enviado exitosamente:', result);
     
     res.json({
       success: true,
@@ -292,11 +299,14 @@ app.post('/api/email/send-confirmation', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error enviando email:', error);
+    console.error('❌ Error completo enviando email:', error);
+    console.error('📋 Stack trace:', error.stack);
+    
     res.status(500).json({
       success: false,
       error: 'Error enviando email',
-      details: error.message
+      details: error.message,
+      code: error.code || 'UNKNOWN'
     });
   }
 });
