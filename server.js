@@ -73,7 +73,7 @@ app.post('/api/mercadopago/create-preference', async (req, res) => {
         excluded_payment_methods: [],
         excluded_payment_types: [],
         installments: 12
-      },      notification_url: `https://venados-bakery.vercel.app/api/webhooks/mercadopago`,
+      },      notification_url: `https://pedidos-reservas.vercel.app/api/webhooks/mercadopago`,
       external_reference: external_reference,
       metadata: metadata || {}
     };
