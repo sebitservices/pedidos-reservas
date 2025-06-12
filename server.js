@@ -33,6 +33,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// Ruta raíz
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Backend Venados Bakery API',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    endpoints: [
+      'GET /health - Estado del servidor',
+      'POST /api/mercadopago/create-preference - Crear preferencia de pago',
+      'POST /api/mercadopago/webhook - Webhook de MercadoPago',
+      'GET /api/mercadopago/payment/:paymentId - Verificar estado de pago',
+      'POST /api/email/send-confirmation - Enviar email de confirmación',
+      'POST /api/email/send-pending - Enviar email de pago pendiente'
+    ]
+  });
+});
+
 // Ruta de salud
 app.get('/health', (req, res) => {
   res.json({ 
