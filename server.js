@@ -3,6 +3,7 @@ const cors = require('cors');
 const mercadopago = require('mercadopago');
 const crypto = require('crypto');
 const { db } = require('./firebaseAdmin');
+const emailService = require('./emailService');
 require('dotenv').config();
 
 // Configurar Mercado Pago
@@ -273,6 +274,56 @@ app.use('*', (req, res) => {
     error: 'Ruta no encontrada',
     path: req.originalUrl 
   });
+});
+
+// Endpoint para enviar email de confirmación
+app.post('/api/email/send-confirmation', async (req, res) => {
+  try {
+    const reservationData = req.body;
+    
+    console.log('📧 Enviando email de confirmación para reserva:', reservationData.numeroReserva);
+    
+    const result = await emailService.sendReservationConfirmation(reservationData);
+    
+    res.json({
+      success: true,
+      message: 'Email enviado exitosamente',
+      messageId: result.messageId
+    });
+    
+  } catch (error) {
+    console.error('❌ Error enviando email:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error enviando email',
+      details: error.message
+    });
+  }
+});
+
+// Endpoint para enviar email de pago pendiente
+app.post('/api/email/send-pending', async (req, res) => {
+  try {
+    const reservationData = req.body;
+    
+    console.log('📧 Enviando email de pago pendiente para reserva:', reservationData.numeroReserva);
+    
+    const result = await emailService.sendPaymentPendingNotification(reservationData);
+    
+    res.json({
+      success: true,
+      message: 'Email pendiente enviado exitosamente',
+      messageId: result.messageId
+    });
+    
+  } catch (error) {
+    console.error('❌ Error enviando email pendiente:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error enviando email pendiente',
+      details: error.message
+    });
+  }
 });
 
 app.listen(PORT, () => {
