@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Backend Venados Bakery API',
-    version: '1.0.1', // Incrementamos versión para forzar redeploy
+    version: '1.0.2', // Incrementamos versión para forzar redeploy
     timestamp: new Date().toISOString(),
     endpoints: [
       'GET /health - Estado del servidor',
