@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const mercadopago = require('mercadopago');
 const crypto = require('crypto');
-const { db } = require('./firebaseAdmin');
-const emailService = require('./emailService');
+// const { db } = require('./firebaseAdmin'); // Temporalmente comentado para debugging
+// const emailService = require('./emailService'); // Temporalmente comentado para debugging
 require('dotenv').config();
 
 // Configurar Mercado Pago
@@ -16,26 +16,11 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL,
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://pedidosvenados.cl'
-  ],
+  origin: '*', // Temporalmente permitir todos los orígenes para debugging
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true,
-  optionsSuccessStatus: 200 // Para navegadores legacy (IE11, varios SmartTVs)
+  credentials: true
 }));
-
-// Middleware adicional para manejar preflight requests
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', 'https://pedidosvenados.cl');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(200);
-});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -51,16 +36,8 @@ app.get('/', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Backend Venados Bakery API',
-    version: '1.0.2', // Incrementamos versión para forzar redeploy
-    timestamp: new Date().toISOString(),
-    endpoints: [
-      'GET /health - Estado del servidor',
-      'POST /api/mercadopago/create-preference - Crear preferencia de pago',
-      'POST /api/mercadopago/webhook - Webhook de MercadoPago',
-      'GET /api/mercadopago/payment/:paymentId - Verificar estado de pago',
-      'POST /api/email/send-confirmation - Enviar email de confirmación',
-      'POST /api/email/send-pending - Enviar email de pago pendiente'
-    ]
+    version: '1.0.3',
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -147,10 +124,8 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
         id: payment.body.id,
         status: payment.body.status,
         external_reference: payment.body.external_reference
-      });
-
-      // Aquí deberías actualizar tu base de datos
-      await updateReservationStatus(payment.body);
+      });      // Aquí deberías actualizar tu base de datos
+      // await updateReservationStatus(payment.body); // Temporalmente comentado
     }
 
     res.status(200).send('OK');
@@ -185,39 +160,12 @@ app.get('/api/mercadopago/payment/:paymentId', async (req, res) => {
   }
 });
 
-// Función para actualizar estado de reserva
+// Función para actualizar estado de reserva - TEMPORALMENTE COMENTADA
+/*
 async function updateReservationStatus(paymentData) {
-  try {
-    const { status, external_reference, id: paymentId, transaction_amount } = paymentData;
-    
-    
-    console.log('Datos del pago:', {
-      paymentId,
-      status,
-      amount: transaction_amount,
-      external_reference
-    });
-    
-    if (!db) {
-      
-      return;
-    }
-    
-    const reservationStatus = mapPaymentStatusToReservation(status);
-    
-    
-    // Solo procesar si el pago fue exitoso
-    if (reservationStatus === 'success') {
-      
-      // La reserva ya debe haber sido creada por el frontend
-      // Aquí podríamos hacer validaciones adicionales si es necesario
-    } else {
-      
-    }
-      } catch (error) {
-    
-  }
+  // ... código comentado para debugging
 }
+*/
 
 // Nueva ruta para verificar y actualizar pago manualmente
 app.post('/api/mercadopago/verify-payment', async (req, res) => {
@@ -239,9 +187,8 @@ app.post('/api/mercadopago/verify-payment', async (req, res) => {
         error: 'El pago no corresponde a la reserva especificada' 
       });
     }
-    
-    // Actualizar la reserva
-    await updateReservationStatus(payment.body);
+      // Actualizar la reserva
+    // await updateReservationStatus(payment.body); // Temporalmente comentado
     
     res.json({
       success: true,
@@ -292,72 +239,24 @@ function getExpirationDateTo() {
 
 // Middleware de manejo de errores
 app.use((err, req, res, next) => {
-  
+  console.error('Error:', err.message);
   res.status(500).json({ 
     error: 'Error interno del servidor',
     message: err.message 
   });
 });
 
-// Endpoint para enviar email de confirmación
+/*
+// Endpoint para enviar email de confirmación - TEMPORALMENTE COMENTADO
 app.post('/api/email/send-confirmation', async (req, res) => {
-  try {
-    const reservationData = req.body;
-    
-    
-    console.log('📋 Variables de entorno disponibles:', {
-      EMAIL_HOST: process.env.EMAIL_HOST ? 'SET' : 'NOT SET',
-      EMAIL_USER: process.env.EMAIL_USER ? 'SET' : 'NOT SET',
-      EMAIL_PORT: process.env.EMAIL_PORT ? 'SET' : 'NOT SET'
-    });
-    
-    const result = await emailService.sendReservationConfirmation(reservationData);
-    
-    
-    
-    res.json({
-      success: true,
-      message: 'Email enviado exitosamente',
-      messageId: result.messageId
-    });
-    
-  } catch (error) {
-    
-    
-    
-    res.status(500).json({
-      success: false,
-      error: 'Error enviando email',
-      details: error.message,
-      code: error.code || 'UNKNOWN'
-    });
-  }
+  // ... código comentado para debugging
 });
 
-// Endpoint para enviar email de pago pendiente
+// Endpoint para enviar email de pago pendiente - TEMPORALMENTE COMENTADO  
 app.post('/api/email/send-pending', async (req, res) => {
-  try {
-    const reservationData = req.body;
-    
-    
-    
-    const result = await emailService.sendPaymentPendingNotification(reservationData);
-    
-    res.json({
-      success: true,
-      message: 'Email pendiente enviado exitosamente',
-      messageId: result.messageId
-    });
-    
-  } catch (error) {
-    
-    res.status(500).json({
-      success: false,
-      error: 'Error enviando email pendiente',
-      details: error.message
-    });
-  }
+  // ... código comentado para debugging
 });
+*/
 
 // Manejar rutas no encontradas
 app.use('*', (req, res) => {
