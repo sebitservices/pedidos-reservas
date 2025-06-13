@@ -30,12 +30,12 @@ class EmailService {
       })
 
       // Verificar la conexión SMTP
-      console.log('🔍 Verificando conexión SMTP...')
+      
       await this.transporter.verify()
-      console.log('✅ Nodemailer configurado correctamente con Hostinger SMTP')
+      
       this.initialized = true
     } catch (error) {
-      console.error('❌ Error configurando Nodemailer:', error)
+      
       console.error('📋 Detalles del error:', {
         code: error.code,
         command: error.command,
@@ -221,11 +221,11 @@ Contacto: venados@pedidosvenados.cl
       }
 
       const result = await this.transporter.sendMail(mailOptions)
-      console.log('✅ Email enviado exitosamente:', result.messageId)
+      
       return { success: true, messageId: result.messageId }
 
     } catch (error) {
-      console.error('❌ Error enviando email:', error)
+      
       throw error
     }
   }
@@ -256,11 +256,11 @@ Contacto: venados@pedidosvenados.cl
       }
 
       const result = await this.transporter.sendMail(mailOptions)
-      console.log('✅ Email pendiente enviado:', result.messageId)
+      
       return { success: true, messageId: result.messageId }
 
     } catch (error) {
-      console.error('❌ Error enviando email pendiente:', error)
+      
       throw error
     }
   }

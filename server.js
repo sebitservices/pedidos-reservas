@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware para logs
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  .toISOString()} - ${req.method} ${req.path}`);
   next();
 });
 
@@ -65,7 +65,7 @@ app.post('/api/mercadopago/create-preference', async (req, res) => {
   try {
     const { items, payer, external_reference, metadata } = req.body;
 
-    console.log('Creando preferencia para:', external_reference);
+    
 
     const preference = {
       items: items.map(item => ({
@@ -99,7 +99,7 @@ app.post('/api/mercadopago/create-preference', async (req, res) => {
 
     const response = await mercadopago.preferences.create(preference);
     
-    console.log('Preferencia creada:', response.body.id);
+    
 
     res.json({
       id: response.body.id,
@@ -108,7 +108,7 @@ app.post('/api/mercadopago/create-preference', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error al crear preferencia:', error);
+    
     res.status(500).json({ 
       error: 'Error al crear preferencia de pago',
       details: error.message 
@@ -121,7 +121,7 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
   try {
     const { type, data } = req.body;
     
-    console.log('Webhook recibido:', { type, data });
+    
 
     // Validar que es una notificación de pago
     if (type === 'payment') {
@@ -142,7 +142,7 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
 
     res.status(200).send('OK');
   } catch (error) {
-    console.error('Error en webhook:', error);
+    
     res.status(500).send('Error');
   }
 });
@@ -164,7 +164,7 @@ app.get('/api/mercadopago/payment/:paymentId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error al verificar pago:', error);
+    
     res.status(500).json({ 
       error: 'Error al verificar estado del pago',
       details: error.message 
@@ -177,7 +177,7 @@ async function updateReservationStatus(paymentData) {
   try {
     const { status, external_reference, id: paymentId, transaction_amount } = paymentData;
     
-    console.log(`Webhook recibido para reserva ${external_reference} con estado: ${status}`);
+    
     console.log('Datos del pago:', {
       paymentId,
       status,
@@ -186,23 +186,23 @@ async function updateReservationStatus(paymentData) {
     });
     
     if (!db) {
-      console.warn('Firebase Admin no configurado. No se puede verificar la base de datos.');
+      
       return;
     }
     
     const reservationStatus = mapPaymentStatusToReservation(status);
-    console.log('Estado de pago mapeado:', reservationStatus);
+    
     
     // Solo procesar si el pago fue exitoso
     if (reservationStatus === 'success') {
-      console.log(`✅ Pago exitoso confirmado para reserva ${external_reference}`);
+      
       // La reserva ya debe haber sido creada por el frontend
       // Aquí podríamos hacer validaciones adicionales si es necesario
     } else {
-      console.log(`⚠️ Pago no exitoso para reserva ${external_reference}: ${status}`);
+      
     }
       } catch (error) {
-    console.error('Error al procesar webhook de pago:', error);
+    
   }
 }
 
@@ -241,7 +241,7 @@ app.post('/api/mercadopago/verify-payment', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error al verificar pago:', error);
+    
     res.status(500).json({ 
       error: 'Error al verificar pago',
       details: error.message 
@@ -279,7 +279,7 @@ function getExpirationDateTo() {
 
 // Middleware de manejo de errores
 app.use((err, req, res, next) => {
-  console.error('Error no manejado:', err);
+  
   res.status(500).json({ 
     error: 'Error interno del servidor',
     message: err.message 
@@ -291,7 +291,7 @@ app.post('/api/email/send-confirmation', async (req, res) => {
   try {
     const reservationData = req.body;
     
-    console.log('📧 Recibida solicitud de email para reserva:', reservationData.numeroReserva);
+    
     console.log('📋 Variables de entorno disponibles:', {
       EMAIL_HOST: process.env.EMAIL_HOST ? 'SET' : 'NOT SET',
       EMAIL_USER: process.env.EMAIL_USER ? 'SET' : 'NOT SET',
@@ -300,7 +300,7 @@ app.post('/api/email/send-confirmation', async (req, res) => {
     
     const result = await emailService.sendReservationConfirmation(reservationData);
     
-    console.log('✅ Email enviado exitosamente:', result);
+    
     
     res.json({
       success: true,
@@ -309,8 +309,8 @@ app.post('/api/email/send-confirmation', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error completo enviando email:', error);
-    console.error('📋 Stack trace:', error.stack);
+    
+    
     
     res.status(500).json({
       success: false,
@@ -326,7 +326,7 @@ app.post('/api/email/send-pending', async (req, res) => {
   try {
     const reservationData = req.body;
     
-    console.log('📧 Enviando email de pago pendiente para reserva:', reservationData.numeroReserva);
+    
     
     const result = await emailService.sendPaymentPendingNotification(reservationData);
     
@@ -337,7 +337,7 @@ app.post('/api/email/send-pending', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error enviando email pendiente:', error);
+    
     res.status(500).json({
       success: false,
       error: 'Error enviando email pendiente',
@@ -355,7 +355,7 @@ app.use('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor backend ejecutándose en puerto ${PORT}`);
-  console.log(`🌍 Frontend URL: ${process.env.FRONTEND_URL}`);
-  console.log(`💳 Mercado Pago configurado`);
+  
+  
+  
 });
