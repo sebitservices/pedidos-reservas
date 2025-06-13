@@ -3,7 +3,7 @@ const cors = require('cors');
 const mercadopago = require('mercadopago');
 const crypto = require('crypto');
 // const { db } = require('./firebaseAdmin'); // Temporalmente comentado para debugging
-// const emailService = require('./emailService'); // Temporalmente comentado para debugging
+const emailService = require('./emailService'); // Rehabilitando emailService
 require('dotenv').config();
 
 // Configurar Mercado Pago
@@ -250,20 +250,20 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Endpoint temporal para enviar email de confirmación
+// Endpoint para enviar email de confirmación
 app.post('/api/email/send-confirmation', async (req, res) => {
   try {
-    // Respuesta temporal mientras emailService está deshabilitado
-    console.log('📧 Email confirmation request received (temporal response)');
+    const reservationData = req.body;
+    const result = await emailService.sendReservationConfirmation(reservationData);
     
     res.json({
       success: true,
-      message: 'Email enviado exitosamente (modo temporal)',
-      messageId: 'temp-' + Date.now()
+      message: 'Email enviado exitosamente',
+      messageId: result.messageId
     });
     
   } catch (error) {
-    console.error('Error in email endpoint:', error);
+    console.error('Error enviando email:', error.message);
     
     res.status(500).json({
       success: false,
@@ -274,19 +274,20 @@ app.post('/api/email/send-confirmation', async (req, res) => {
   }
 });
 
-// Endpoint temporal para enviar email de pago pendiente  
+// Endpoint para enviar email de pago pendiente  
 app.post('/api/email/send-pending', async (req, res) => {
   try {
-    console.log('📧 Email pending request received (temporal response)');
+    const reservationData = req.body;
+    const result = await emailService.sendPaymentPendingNotification(reservationData);
     
     res.json({
       success: true,
-      message: 'Email pendiente enviado exitosamente (modo temporal)',
-      messageId: 'temp-pending-' + Date.now()
+      message: 'Email pendiente enviado exitosamente',
+      messageId: result.messageId
     });
     
   } catch (error) {
-    console.error('Error in email pending endpoint:', error);
+    console.error('Error enviando email pendiente:', error.message);
     
     res.status(500).json({
       success: false,
@@ -295,18 +296,6 @@ app.post('/api/email/send-pending', async (req, res) => {
     });
   }
 });
-
-/*
-// Endpoint para enviar email de confirmación - TEMPORALMENTE COMENTADO
-app.post('/api/email/send-confirmation', async (req, res) => {
-  // ... código comentado para debugging
-});
-
-// Endpoint para enviar email de pago pendiente - TEMPORALMENTE COMENTADO  
-app.post('/api/email/send-pending', async (req, res) => {
-  // ... código comentado para debugging
-});
-*/
 
 // Manejar rutas no encontradas
 app.use('*', (req, res) => {
@@ -317,7 +306,7 @@ app.use('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  
-  
-  
+  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+  console.log(`📧 Email service: ${emailService ? 'Disponible' : 'No disponible'}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });

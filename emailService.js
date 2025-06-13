@@ -8,12 +8,7 @@ class EmailService {
     if (this.initialized) return
 
     try {
-      console.log('🔧 Configurando SMTP con:', {
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        secure: process.env.EMAIL_SECURE,
-        user: process.env.EMAIL_USER ? 'configurado' : 'NO CONFIGURADO'
-      })      // Configurar el transportador SMTP para Hostinger
+      // Configurar el transportador SMTP para Hostinger
       this.transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
         port: parseInt(process.env.EMAIL_PORT),
@@ -24,23 +19,13 @@ class EmailService {
         },
         tls: {
           rejectUnauthorized: false
-        },
-        debug: true, // Activar debug para ver qué pasa
-        logger: true // Activar logging
+        }
       })
 
       // Verificar la conexión SMTP
-      
       await this.transporter.verify()
-      
       this.initialized = true
     } catch (error) {
-      
-      console.error('📋 Detalles del error:', {
-        code: error.code,
-        command: error.command,
-        response: error.response
-      })
       throw error
     }
   }
@@ -224,8 +209,9 @@ Contacto: venados@pedidosvenados.cl
       
       return { success: true, messageId: result.messageId }
 
+          return { success: true, messageId: result.messageId }
+
     } catch (error) {
-      
       throw error
     }
   }
@@ -256,11 +242,9 @@ Contacto: venados@pedidosvenados.cl
       }
 
       const result = await this.transporter.sendMail(mailOptions)
-      
       return { success: true, messageId: result.messageId }
 
     } catch (error) {
-      
       throw error
     }
   }
