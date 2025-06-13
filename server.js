@@ -16,7 +16,11 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(cors({
-  origin: '*', // Temporalmente permitir todos los orígenes para debugging
+  origin: [
+    'https://pedidosvenados.cl',
+    'http://localhost:3000',
+    'http://localhost:5173'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
@@ -36,7 +40,7 @@ app.get('/', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Backend Venados Bakery API',
-    version: '1.0.3',
+    version: '1.0.4',
     timestamp: new Date().toISOString()
   });
 });
@@ -244,6 +248,52 @@ app.use((err, req, res, next) => {
     error: 'Error interno del servidor',
     message: err.message 
   });
+});
+
+// Endpoint temporal para enviar email de confirmación
+app.post('/api/email/send-confirmation', async (req, res) => {
+  try {
+    // Respuesta temporal mientras emailService está deshabilitado
+    console.log('📧 Email confirmation request received (temporal response)');
+    
+    res.json({
+      success: true,
+      message: 'Email enviado exitosamente (modo temporal)',
+      messageId: 'temp-' + Date.now()
+    });
+    
+  } catch (error) {
+    console.error('Error in email endpoint:', error);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Error enviando email',
+      details: error.message,
+      code: error.code || 'UNKNOWN'
+    });
+  }
+});
+
+// Endpoint temporal para enviar email de pago pendiente  
+app.post('/api/email/send-pending', async (req, res) => {
+  try {
+    console.log('📧 Email pending request received (temporal response)');
+    
+    res.json({
+      success: true,
+      message: 'Email pendiente enviado exitosamente (modo temporal)',
+      messageId: 'temp-pending-' + Date.now()
+    });
+    
+  } catch (error) {
+    console.error('Error in email pending endpoint:', error);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Error enviando email pendiente',
+      details: error.message
+    });
+  }
 });
 
 /*
