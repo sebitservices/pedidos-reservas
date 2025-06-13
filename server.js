@@ -286,14 +286,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Manejar rutas no encontradas
-app.use('*', (req, res) => {
-  res.status(404).json({ 
-    error: 'Ruta no encontrada',
-    path: req.originalUrl 
-  });
-});
-
 // Endpoint para enviar email de confirmación
 app.post('/api/email/send-confirmation', async (req, res) => {
   try {
@@ -352,6 +344,14 @@ app.post('/api/email/send-pending', async (req, res) => {
       details: error.message
     });
   }
+});
+
+// Manejar rutas no encontradas
+app.use('*', (req, res) => {
+  res.status(404).json({ 
+    error: 'Ruta no encontrada',
+    path: req.originalUrl 
+  });
 });
 
 app.listen(PORT, () => {
