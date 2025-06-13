@@ -13,10 +13,8 @@ class EmailService {
         port: process.env.EMAIL_PORT,
         secure: process.env.EMAIL_SECURE,
         user: process.env.EMAIL_USER ? 'configurado' : 'NO CONFIGURADO'
-      })
-
-      // Configurar el transportador SMTP para Hostinger
-      this.transporter = nodemailer.createTransporter({
+      })      // Configurar el transportador SMTP para Hostinger
+      this.transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
         port: parseInt(process.env.EMAIL_PORT),
         secure: process.env.EMAIL_SECURE === 'true',
