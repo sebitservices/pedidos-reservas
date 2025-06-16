@@ -242,10 +242,222 @@ Contacto: venados@pedidosvenados.cl
       }
 
       const result = await this.transporter.sendMail(mailOptions)
-      return { success: true, messageId: result.messageId }
+      return { success: true, messageId: result.messageId }    } catch (error) {
+      throw error
+    }
+  }
+
+  // Método para enviar mensaje de contacto general
+  async sendContactMessage(contactData) {
+    if (!this.initialized) {
+      await this.initialize()
+    }
+
+    try {
+      const emailHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Nuevo Mensaje de Contacto - Venados Bakery</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+          
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #D97706, #F59E0B); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">💌 Nuevo Mensaje de Contacto</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Venados Bakery & Coffee</p>
+          </div>
+
+          <!-- Content -->
+          <div style="background: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 10px 10px;">
+            
+            <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="color: #D97706; margin-top: 0; margin-bottom: 15px;">👤 Información del Cliente</h2>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold; width: 120px;">Nombre:</td>
+                  <td style="padding: 8px 0;">${contactData.nombre}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Email:</td>
+                  <td style="padding: 8px 0;"><a href="mailto:${contactData.email}" style="color: #D97706;">${contactData.email}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Teléfono:</td>
+                  <td style="padding: 8px 0;">${contactData.telefono}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Fecha:</td>
+                  <td style="padding: 8px 0;">${new Date(contactData.fechaEnvio).toLocaleString('es-CL')}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="background: #FEF3C7; padding: 20px; border-radius: 8px; border-left: 4px solid #F59E0B;">
+              <h3 style="color: #92400E; margin-top: 0; margin-bottom: 15px;">📝 Mensaje del Cliente</h3>
+              <div style="background: white; padding: 15px; border-radius: 6px; font-style: italic; line-height: 1.6;">
+                "${contactData.mensaje}"
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #F9FAFB; border-radius: 8px;">
+              <p style="margin: 0; color: #6B7280; font-size: 14px;">
+                📧 Responde directamente a <strong>${contactData.email}</strong> para contactar al cliente.
+              </p>
+            </div>
+
+          </div>
+        </body>
+        </html>
+      `;
+
+      const mailOptions = {
+        from: `"Venados Bakery Sistema" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_USER, // Email de la empresa
+        subject: `💌 Nuevo mensaje de contacto de ${contactData.nombre}`,
+        html: emailHTML,
+        replyTo: contactData.email
+      };
+
+      const result = await this.transporter.sendMail(mailOptions);
+      return { success: true, messageId: result.messageId };
 
     } catch (error) {
-      throw error
+      throw error;
+    }
+  }
+
+  // Método para enviar solicitud de cotización
+  async sendQuoteRequest(quoteData) {
+    if (!this.initialized) {
+      await this.initialize()
+    }
+
+    try {
+      const emailHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Nueva Solicitud de Cotización - Venados Bakery</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+          
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #059669, #10B981); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">🎂 Nueva Solicitud de Cotización</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Venados Bakery & Coffee</p>
+          </div>
+
+          <!-- Content -->
+          <div style="background: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 10px 10px;">
+            
+            <!-- Información del Cliente -->
+            <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="color: #059669; margin-top: 0; margin-bottom: 15px;">👤 Información del Cliente</h2>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold; width: 120px;">Nombre:</td>
+                  <td style="padding: 8px 0;">${quoteData.nombre}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Email:</td>
+                  <td style="padding: 8px 0;"><a href="mailto:${quoteData.email}" style="color: #059669;">${quoteData.email}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Teléfono:</td>
+                  <td style="padding: 8px 0;">${quoteData.telefono}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Fecha Solicitud:</td>
+                  <td style="padding: 8px 0;">${new Date(quoteData.fechaEnvio).toLocaleString('es-CL')}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Detalles del Producto -->
+            <div style="background: #ECFDF5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981;">
+              <h2 style="color: #047857; margin-top: 0; margin-bottom: 15px;">🎂 Detalles del Producto Solicitado</h2>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold; width: 150px;">Fecha del Evento:</td>
+                  <td style="padding: 8px 0; color: #DC2626; font-weight: bold;">${new Date(quoteData.fechaEvento).toLocaleDateString('es-CL', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Tipo de Producto:</td>
+                  <td style="padding: 8px 0; text-transform: capitalize;">${quoteData.tipoProducto}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Número de Personas:</td>
+                  <td style="padding: 8px 0;">${quoteData.numeroPersonas} personas</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Sabor Preferido:</td>
+                  <td style="padding: 8px 0;">${quoteData.sabor}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Presupuesto:</td>
+                  <td style="padding: 8px 0;">${quoteData.presupuesto}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Descripción Detallada -->
+            <div style="background: #FEF3C7; padding: 20px; border-radius: 8px; border-left: 4px solid #F59E0B;">
+              <h3 style="color: #92400E; margin-top: 0; margin-bottom: 15px;">📝 Descripción Detallada del Cliente</h3>
+              <div style="background: white; padding: 15px; border-radius: 6px; font-style: italic; line-height: 1.6;">
+                "${quoteData.mensaje}"
+              </div>
+            </div>
+
+            <!-- Datos de Tiempo -->
+            <div style="background: #EFF6FF; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h4 style="color: #1D4ED8; margin: 0 0 10px 0;">⏰ Información de Tiempo</h4>
+              <p style="margin: 5px 0; color: #374151;">
+                <strong>Días hasta el evento:</strong> 
+                ${Math.ceil((new Date(quoteData.fechaEvento) - new Date()) / (1000 * 60 * 60 * 24))} días
+              </p>
+              <p style="margin: 5px 0; color: #374151; font-size: 14px;">
+                <em>Considera el tiempo de preparación necesario para este tipo de producto.</em>
+              </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #F9FAFB; border-radius: 8px;">
+              <p style="margin: 0 0 10px 0; color: #6B7280; font-size: 14px;">
+                📧 Responde directamente a <strong>${quoteData.email}</strong> para enviar la cotización.
+              </p>
+              <p style="margin: 0; color: #059669; font-weight: bold; font-size: 16px;">
+                💡 ¡Recuerda enviar la cotización lo antes posible!
+              </p>
+            </div>
+
+          </div>
+        </body>
+        </html>
+      `;
+
+      const mailOptions = {
+        from: `"Venados Bakery Sistema" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_USER, // Email de la empresa
+        subject: `🎂 Nueva cotización: ${quoteData.tipoProducto} para ${quoteData.numeroPersonas} personas - ${quoteData.nombre}`,
+        html: emailHTML,
+        replyTo: quoteData.email
+      };
+
+      const result = await this.transporter.sendMail(mailOptions);
+      return { success: true, messageId: result.messageId };
+
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -297,6 +297,220 @@ app.post('/api/email/send-pending', async (req, res) => {
   }
 });
 
+// ======================== RUTAS DE CONTACTO ========================
+
+// Ruta para enviar mensaje de contacto general
+app.post('/api/contact/message', async (req, res) => {
+  try {
+    const { nombre, email, telefono, mensaje, fechaEnvio } = req.body;
+
+    // Validar campos requeridos
+    if (!nombre || !email || !mensaje) {
+      return res.status(400).json({
+        error: 'Los campos nombre, email y mensaje son requeridos'
+      });
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: 'El formato del email no es válido'
+      });
+    }
+
+    // Preparar datos para el email
+    const contactData = {
+      nombre,
+      email,
+      telefono: telefono || 'No proporcionado',
+      mensaje,
+      fechaEnvio: fechaEnvio || new Date().toISOString(),
+      tipo: 'contacto'
+    };
+
+    // Enviar email
+    await emailService.sendContactMessage(contactData);
+
+    res.json({
+      success: true,
+      message: 'Mensaje de contacto enviado correctamente'
+    });
+
+  } catch (error) {
+    console.error('Error al enviar mensaje de contacto:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor al enviar el mensaje',
+      details: error.message
+    });
+  }
+});
+
+// Ruta para enviar solicitud de cotización
+app.post('/api/contact/quote', async (req, res) => {
+  try {
+    const {
+      nombre,
+      email,
+      telefono,
+      fechaEvento,
+      tipoProducto,
+      numeroPersonas,
+      sabor,
+      presupuesto,
+      mensaje,
+      fechaEnvio
+    } = req.body;
+
+    // Validar campos requeridos para cotización
+    if (!nombre || !email || !fechaEvento || !tipoProducto || !numeroPersonas || !mensaje) {
+      return res.status(400).json({
+        error: 'Todos los campos marcados con * son requeridos para la cotización'
+      });
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: 'El formato del email no es válido'
+      });
+    }
+
+    // Validar fecha del evento (debe ser futura)
+    const fechaEventoDate = new Date(fechaEvento);
+    const hoy = new Date();
+    if (fechaEventoDate <= hoy) {
+      return res.status(400).json({
+        error: 'La fecha del evento debe ser posterior a hoy'
+      });
+    }
+
+    // Validar número de personas
+    if (numeroPersonas < 1 || numeroPersonas > 1000) {
+      return res.status(400).json({
+        error: 'El número de personas debe estar entre 1 y 1000'
+      });
+    }
+
+    // Preparar datos para el email
+    const quoteData = {
+      nombre,
+      email,
+      telefono: telefono || 'No proporcionado',
+      fechaEvento,
+      tipoProducto,
+      numeroPersonas,
+      sabor: sabor || 'No especificado',
+      presupuesto: presupuesto || 'No especificado',
+      mensaje,
+      fechaEnvio: fechaEnvio || new Date().toISOString(),
+      tipo: 'cotizacion'
+    };
+
+    // Enviar email
+    await emailService.sendQuoteRequest(quoteData);
+
+    res.json({
+      success: true,
+      message: 'Solicitud de cotización enviada correctamente'
+    });
+
+  } catch (error) {
+    console.error('Error al enviar solicitud de cotización:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor al enviar la cotización',
+      details: error.message
+    });
+  }
+});
+
+// Ruta unificada para manejar ambos tipos de formulario
+app.post('/api/contact/submit', async (req, res) => {
+  try {
+    const { tipo } = req.body;
+
+    if (tipo === 'contacto') {
+      // Procesar como mensaje de contacto
+      const { nombre, email, telefono, mensaje, fechaEnvio } = req.body;
+
+      if (!nombre || !email || !mensaje) {
+        return res.status(400).json({
+          error: 'Los campos nombre, email y mensaje son requeridos'
+        });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          error: 'El formato del email no es válido'
+        });
+      }
+
+      const contactData = {
+        nombre, email, telefono: telefono || 'No proporcionado', mensaje,
+        fechaEnvio: fechaEnvio || new Date().toISOString(), tipo: 'contacto'
+      };
+
+      await emailService.sendContactMessage(contactData);
+      return res.json({ success: true, message: 'Mensaje de contacto enviado correctamente' });
+
+    } else if (tipo === 'cotizacion') {
+      // Procesar como cotización
+      const { nombre, email, telefono, fechaEvento, tipoProducto, numeroPersonas, sabor, presupuesto, mensaje, fechaEnvio } = req.body;
+
+      if (!nombre || !email || !fechaEvento || !tipoProducto || !numeroPersonas || !mensaje) {
+        return res.status(400).json({
+          error: 'Todos los campos marcados con * son requeridos para la cotización'
+        });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          error: 'El formato del email no es válido'
+        });
+      }
+
+      const fechaEventoDate = new Date(fechaEvento);
+      const hoy = new Date();
+      if (fechaEventoDate <= hoy) {
+        return res.status(400).json({
+          error: 'La fecha del evento debe ser posterior a hoy'
+        });
+      }
+
+      if (numeroPersonas < 1 || numeroPersonas > 1000) {
+        return res.status(400).json({
+          error: 'El número de personas debe estar entre 1 y 1000'
+        });
+      }
+
+      const quoteData = {
+        nombre, email, telefono: telefono || 'No proporcionado', fechaEvento, tipoProducto, numeroPersonas,
+        sabor: sabor || 'No especificado', presupuesto: presupuesto || 'No especificado', mensaje,
+        fechaEnvio: fechaEnvio || new Date().toISOString(), tipo: 'cotizacion'
+      };
+
+      await emailService.sendQuoteRequest(quoteData);
+      return res.json({ success: true, message: 'Solicitud de cotización enviada correctamente' });
+
+    } else {
+      return res.status(400).json({
+        error: 'Tipo de formulario no válido. Debe ser "contacto" o "cotizacion"'
+      });
+    }
+  } catch (error) {
+    console.error('Error en ruta unificada de contacto:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor',
+      details: error.message
+    });
+  }
+});
+
+// ======================== FIN RUTAS DE CONTACTO ========================
+
 // Manejar rutas no encontradas
 app.use('*', (req, res) => {
   res.status(404).json({ 
