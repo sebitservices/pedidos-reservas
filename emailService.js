@@ -37,14 +37,17 @@ class EmailService {
 
     try {
       // Formatear productos para el email
-      const productosHTML = reservationData.productos
-        .map(p => `
-          <tr>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.cantidad}x</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.nombre}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${(p.precio * p.cantidad).toLocaleString('es-CL')}</td>
-          </tr>
-        `).join('')
+       const productosHTML = reservationData.productos
+          .map(p => `
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.cantidad}x</td>
+              <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                ${p.nombre}
+                ${p.descripcionPorcion ? `<br><small style="color: #666; font-style: italic;">${p.descripcionPorcion}</small>` : ''}
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${((p.precioPorcion || p.precio) * p.cantidad).toLocaleString('es-CL')}</td>
+            </tr>
+          `).join('')
 
       const emailHTML = `
         <!DOCTYPE html>
@@ -209,8 +212,6 @@ Contacto: venados@pedidosvenados.cl
       
       return { success: true, messageId: result.messageId }
 
-          return { success: true, messageId: result.messageId }
-
     } catch (error) {
       throw error
     }
@@ -236,13 +237,14 @@ Contacto: venados@pedidosvenados.cl
             <p>Tu pago está siendo procesado. Te notificaremos cuando se confirme.</p>
             <p><strong>Reserva:</strong> #${reservationData.numeroReserva}</p>
             <p>Gracias por tu paciencia.</p>
-            <p><em>Venados Bakery</em></p>
-          </div>
+            <p><em>Venados Bakery</em></p>          </div>
         `
       }
 
       const result = await this.transporter.sendMail(mailOptions)
-      return { success: true, messageId: result.messageId }    } catch (error) {
+      return { success: true, messageId: result.messageId }
+
+    } catch (error) {
       throw error
     }
   }
